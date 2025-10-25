@@ -8,19 +8,20 @@ from tqdm import trange
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
-from RatingsLoader import RatingsLoader, movies_df
+from RatingsLoader import RatingsLoader #, movies_df
+import os
 
 
 
 # Initialize Model - Matrix Factorization
 class MovieRatingsModel(torch.nn.Module):
-    def __init__(self, num_users, num_items, num_factors=32):
+    def __init__(self, num_users, num_movies, num_factors=32):
         super().__init__()
 
         self.user_factors = Embedding(num_users, num_factors)  # factors
-        self.item_factors = Embedding(num_items, num_factors)
+        self.movie_factors = Embedding(num_movies, num_factors)
         self.user_bias = Embedding(num_users, 1)              # bias terms
-        self.item_bias = Embedding(num_items, 1)
+        self.movie_bias = Embedding(num_movies, 1)
         self.global_bias = Parameter(torch.zeros(1))
 
         # Initialize the weights uniformly
@@ -28,19 +29,47 @@ class MovieRatingsModel(torch.nn.Module):
             torch.nn.init.uniform_(param, 0, 0.05)
 
     def forward(self, data):
-        users, items = data[:, 0], data[:, 1]
-        dot = (self.user_factors(users) * self.item_factors(items)).sum(1)
-        return dot + self.user_bias(users).squeeze() + self.item_bias(items).squeeze() + self.global_bias
+        users, movies = data[:, 0], data[:, 1]
+        dot = (self.user_factors(users) * self.movie_factors(movies)).sum(1)
+        return dot + self.user_bias(users).squeeze() + self.movie_bias(movies).squeeze() + self.global_bias
 
 
-# add update and save checkpoints
+
+
+
+def saveModel(model, optimizer, epoch, path_to_checkpoint, latest_checkpoint):
+    # add update and save checkpoints
+    filepath_checkpoint = os.path.join(path_to_checkpoint, f"epoch{epoch+1}.pth")
+
+    torch.save({                  # every checkpoint
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+
+        }, filepath_checkpoint
+    )
+
+    torch.save({                  # the most current model
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+
+        }, latest_checkpoint
+    )
+    print(f"Saved Epoch checkpoint #{epoch+1}\n\tlocation: {filepath_checkpoint}\n")
+
+
+
 
 # Training Function 
-def trainModel(model, ratings_df):
+def trainModel(model, ratings_df, period= 5, path_to_checkpoint= "../saved/"):
+
+    os.makedirs(path_to_checkpoint, exist_ok=True)
 
     # Training Configurations
+    start_epochs = 0
     num_epochs = 64                                     
-    batch_size = 1024                                   
+    batch_size = 128  # 1024                                   
     lr = 1e-3                                           # Learning rate
     reg_strength = 1e-5                                 # Regularization
 
@@ -56,8 +85,18 @@ def trainModel(model, ratings_df):
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
 
+    # check if a saved model exists
+    latest_checkpoint = os.path.join(path_to_checkpoint, "movie_ratings_model.pth")
+    if os.path.exists(latest_checkpoint):
+        checkpoint = torch.load(latest_checkpoint)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epochs = checkpoint['epoch'] + 1
+        print(f"Resuming previous models training at epoch# {start_epochs}.\n")
+
+
     # Train Model
-    for epoch in trange(num_epochs, desc="Training"):
+    for epoch in trange(start_epochs, num_epochs, desc="Training Model"):
         model.train()
         losses = []
 
@@ -70,7 +109,7 @@ def trainModel(model, ratings_df):
                 outputs = model(x)
                 mse_loss = loss_fn(outputs.squeeze(), y.float())
                 reg_loss = reg_strength * (
-                    model.user_factors.weight.norm(2) + model.item_factors.weight.norm(2)
+                    model.user_factors.weight.norm(2) + model.movie_factors.weight.norm(2)
                 )
                 loss = mse_loss + reg_loss
 
@@ -81,6 +120,10 @@ def trainModel(model, ratings_df):
             losses.append(loss.item())
 
         print(f"Epoch {epoch+1:03d} | Loss: {sum(losses)/len(losses):.4f}")
+        # Save checkpoints periodically
+        if (epoch + 1) % period == 0:
+            saveModel(model, optimizer, epoch, path_to_checkpoint, latest_checkpoint)
+
     print("\nTraining is complete.")
     return train_set
 
@@ -146,25 +189,53 @@ def evaluate_model(model, ratings_df, train_set, movie_names, cuda=False, test_s
         errors = preds_np - y_test_np
 
         # Histogram of prediction errors
+        # - this will provide the performance of the model
+        #   such that the denser (more frequent or populated) values are to Zero, the accuracy of the model would be higher.
+        #   And vice versa
         plt.figure(figsize=(6, 4))
         plt.hist(errors, bins=30, edgecolor='black')
-        plt.title("Distribution of Prediction Errors")
-        plt.xlabel("Prediction Error (Predicted - Actual)")
-        plt.ylabel("Frequency")
+        plt.title("Distribution of Prediction Errors")          # 
+        plt.xlabel("Error in Prediction := (Predicted - Actual)")     # BIAS
+        plt.ylabel("Frequency (1 / Period)")
         plt.grid(alpha=0.3)
         plt.show()
 
         # Scatter plot: Actual vs Predicted
+        #
+        #
+        #
         plt.figure(figsize=(5, 5))
         plt.scatter(y_test_np, preds_np, alpha=0.4)
         plt.title("Actual vs Predicted Ratings")
         plt.xlabel("Actual Rating")
         plt.ylabel("Predicted Rating")
-        plt.plot([0, 5], [0, 5], color='red', linestyle='--')  
+        plt.plot([0, 5], [0, 5], color='blue', linestyle='--')  
         plt.grid(alpha=0.3)
-        plt.show()
+        plt.show() 
  
     return rmse
+
+
+
+def viewMovieClusters(kmeans, ratings_df, movie_names, num_clusters=10):
+
+    print("\nMovie Clusters (Top ten movies by rating count for every cluster):\n")
+    for cluster in range(num_clusters):
+       
+        print(f"\nCluster #{cluster + 1}\n{'-'*10}")
+        movie_cluster = []
+        # Find movie indices belonging to the current cluster
+        # and obtain ratings associated to movies
+        for movie_index in np.where(kmeans.labels_ == cluster)[0]:
+          
+            movieid = train_set.getMovieByIndex(movie_index)
+            num_ratings = len(ratings_df.loc[ratings_df['movieId'] == movieid])
+            movie_cluster.append((movie_names[movieid], num_ratings))
+
+        # Sort movies by rating count in descending order, then print the top 10 movies in cluster
+        for movie_title, _ in sorted(movie_cluster, key=lambda tup: tup[1], reverse=True)[:10]:
+            print(f"\t{movie_title}")
+
 
 
 
@@ -175,10 +246,10 @@ if __name__ == "__main__":
     ratings_df = pd.read_csv('../data/ratings.csv')
 
     num_users = len(ratings_df.userId.unique())
-    num_items = len(ratings_df.movieId.unique())
+    num_movies = len(ratings_df.movieId.unique())
 
     # Initialize model
-    model = MovieRatingsModel(num_users, num_items, num_factors=32)
+    model = MovieRatingsModel(num_users, num_movies, num_factors=32)
     
     # Check if machine has a GPU to use with model
     cuda = torch.cuda.is_available()
@@ -193,7 +264,7 @@ if __name__ == "__main__":
     # Save the model
     torch.save(model.state_dict(), "movie_ratings_model.pth")
 
-    trained_movie_embeddings = model.item_factors.weight.data.cpu().numpy()
+    trained_movie_embeddings = model.movie_factors.weight.data.cpu().numpy()
     print(f'Number of unique movie factor weights: {len(trained_movie_embeddings)}')
  
     # Fit the clusters based on the movie weights
@@ -204,18 +275,5 @@ if __name__ == "__main__":
     rmse = evaluate_model(model, ratings_df, train_set, movie_names, cuda=cuda)
 
 
-    print("\nMovie Clusters (Top 10 movies by rating count per cluster):\n")
-    for cluster in range(10):
-        print(f"\nCluster #{cluster}")
-        movs = []
-
-        # Find movie indices belonging to the current cluster
-        # and obtain ratings associated to movies
-        for movie_index in np.where(kmeans.labels_ == cluster)[0]:
-            movieid = train_set.getMovieByIndex(movie_index)
-            num_ratings = len(ratings_df.loc[ratings_df['movieId'] == movieid])
-            movs.append((movie_names[movieid], num_ratings))
-
-        # Sort movies by rating count in descending order, then print the top 10 movies in cluster
-        for movie_title, value in sorted(movs, key=lambda tup: tup[1], reverse=True)[:10]:
-            print(f"\t{movie_title}")
+    # 
+    viewMovieClusters(kmeans, ratings_df, movie_names, num_clusters=10)
