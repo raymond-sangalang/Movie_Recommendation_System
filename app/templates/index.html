@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Movie Selection page -->
+
+
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Movie Recommender</title>
+    <style>
+        body {
+          background-color: powderblue;
+        }
+        h1 {
+          color: orangered;
+          text-align: center;
+        }
+
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  </head>
+
+  <body>
+
+    <h1>The Movie Recommendation System</h1>
+
+    <form action="/recommend" method="POST">
+
+      <label for="movie">Select a movie title:</label>
+      <select name="movie" id="movie" required>
+        {% for m in movies %}
+          <option value="{{ m }}">{{ m }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Press for movie recommendations</button>
+
+    </form>
+
+  </body>
+
+</html>

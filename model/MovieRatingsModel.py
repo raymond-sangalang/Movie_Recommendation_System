@@ -1,3 +1,4 @@
+""" MovieRatingsModel.py """
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -250,7 +251,7 @@ if __name__ == "__main__":
 
     # Initialize model
     model = MovieRatingsModel(num_users, num_movies, num_factors=32)
-    
+ 
     # Check if machine has a GPU to use with model
     cuda = torch.cuda.is_available()
     if cuda:
@@ -260,9 +261,6 @@ if __name__ == "__main__":
     # Train the model
     train_set = trainModel(model, ratings_df= ratings_df)
 
-
-    # Save the model
-    torch.save(model.state_dict(), "movie_ratings_model.pth")
 
     trained_movie_embeddings = model.movie_factors.weight.data.cpu().numpy()
     print(f'Number of unique movie factor weights: {len(trained_movie_embeddings)}')

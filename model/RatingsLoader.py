@@ -1,4 +1,6 @@
+""" RatingsLoader.py """
 import torch
+from torch import tensor, is_tensor
 from torch.utils.data.dataset import Dataset
 from torch.utils.data import DataLoader
 import pandas as pd
@@ -10,10 +12,10 @@ class RatingsLoader(Dataset):
         Takes in a DataFrame and creates continuous IDs for users and movies. """
    
     def __init__(self, ratings_df):
-        
-        self.ratings = ratings_df.copy()   # avoid mutating or corrupting the original
-
-        # Extract and map all user IDs and movie IDs to indices
+       
+        # avoid mutating or corrupting the original 
+        #  and extract and map all user IDs and movie IDs to indices
+        self.ratings = ratings_df.copy()   
         unique_users = self.ratings["userId"].unique()
         unique_movies = self.ratings["movieId"].unique()
 
@@ -35,8 +37,8 @@ class RatingsLoader(Dataset):
         self.y = self.ratings['rating'].values
 
         # Transforms the data to tensors 
-        self.x = torch.tensor(self.x)
-        self.y = torch.tensor(self.y)
+        self.x = tensor(self.x)
+        self.y = tensor(self.y)
 
 
 
@@ -52,13 +54,11 @@ class RatingsLoader(Dataset):
 
 
     def __getitem__(self, index):
-        # return (self.x[index], self.y[index])
-        user_id, movie_id = self.x[index]
-        rating = self.y[index]
         return (
-            torch.tensor(self.x[index], dtype= torch.long),
-            rating if torch.is_tensor(rating) else torch.tensor(rating, dtype=torch.float32),
+            self.x[index].detach().clone(),  
+            self.y[index] if is_tensor(self.y[index]) else tensor(self.y[index], dtype=torch.float32),
         )
+
 
     def __len__(self):
         return len(self.ratings)
