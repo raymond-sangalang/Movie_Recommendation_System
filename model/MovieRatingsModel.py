@@ -9,7 +9,7 @@ from tqdm import trange
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
-from RatingsLoader import RatingsLoader #, movies_df
+from RatingsLoader import RatingsLoader 
 import os
 
 
@@ -33,7 +33,6 @@ class MovieRatingsModel(torch.nn.Module):
         users, movies = data[:, 0], data[:, 1]
         dot = (self.user_factors(users) * self.movie_factors(movies)).sum(1)
         return dot + self.user_bias(users).squeeze() + self.movie_bias(movies).squeeze() + self.global_bias
-
 
 
 

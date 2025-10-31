@@ -1,3 +1,4 @@
+#
 """ main.py - Entry point for flask and executes the web application. """
 from flask import Flask
 from routes import application_routes
@@ -18,3 +19,4 @@ if __name__ == "__main__" :
     # Initialize and start running the application
     app = create_app()
     app.run(debug=True)
+

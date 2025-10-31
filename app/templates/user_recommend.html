@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+      <meta charset="UTF-8">
+
+      <title>User {{ user_id }} Recommendations</title>
+      <style>
+          body { 
+              font-family: Arial; 
+              text-align: center; 
+              background: #f7f7f7; 
+          }
+          h2 { 
+              margin-top: 40px; 
+          }
+          img { 
+              border-radius: 10px; 
+              width: 100%; 
+          }
+          a { 
+              text-decoration: none; 
+              color: #555; 
+              display: inline-block; 
+              margin-top: 20px; 
+          }
+
+          .movie-grid {
+              display: flex; 
+              flex-wrap: wrap; 
+              justify-content: center;
+              gap: 20px; 
+              margin-top: 30px;
+          }
+          .movie-card {
+              background: white; 
+              border-radius: 12px; 
+              box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+              width: 200px; 
+              padding: 10px;
+              transition: transform 0.2s ease;
+          }
+          .movie-card:hover { 
+              transform: scale(1.05); 
+          }
+      </style>
+    
+  </head>
+
+  <body>
+      <h2>Recommendations for User {{ user_id }}</h2>
+      <div class="movie-grid">
+          {% for r in recommendations %}
+              <div class="movie-card">
+                  <img src="{{ r.poster }}" alt="{{ r.title }}">
+                  <h4>{{ r.title }}</h4>
+              </div>
+          {% endfor %}
+      </div>
+      <a href="/user">⬅ Choose another user</a>
+  </body>
+
+</html>

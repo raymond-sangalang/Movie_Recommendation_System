@@ -3,40 +3,54 @@
 <!-- Movie Selection page -->
 
 
-  <head>
-    <meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
 
-    <title>Movie Recommender</title>
-    <style>
-        body {
-          background-color: powderblue;
-        }
-        h1 {
-          color: orangered;
-          text-align: center;
-        }
+        <title>Movie Recommender</title>
+        <style>
+            body {
+                background-color: powderblue;
+            }
+            h1 {
+                color: orangered;
+                text-align: center;
+            }
+            a {
+                color: darkviolet;
+                text-decoration: none;
+                font-size: 1.1em;
+                text-align: center;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
 
-  </head>
+    <body>
 
-  <body>
+        <h1>The Movie Recommendation System</h1>
 
-    <h1>The Movie Recommendation System</h1>
+        <form action="/recommend" method="POST">
 
-    <form action="/recommend" method="POST">
+            <label for="movie">Select a movie title:</label>
+            <select name="movie" id="movie" required>
+                {% for m in movies %}
+                    <option value="{{ m }}">{{ m }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Press for movie recommendations</button>
 
-      <label for="movie">Select a movie title:</label>
-      <select name="movie" id="movie" required>
-        {% for m in movies %}
-          <option value="{{ m }}">{{ m }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit">Press for movie recommendations</button>
+        </form>
 
-    </form>
 
-  </body>
+        <div style="margin-top: 30px;">
+          
+            <a href="/user">Click here to start the <b>personalized user movie recommendations</b></a>
+        </div>
+
+    </body>
 
 </html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Select User</title>
+        <style>
+            body { font-family: Arial; text-align: center; margin-top: 100px; }
+            select, button { padding: 10px; font-size: 16px; }
+        </style>
+    </head>
+
+    <body>
+        <h2>Personalized Recommendations</h2>
+        <form action="/user_recommend" method="POST">
+            <label for="user_id">Select User ID:</label>
+            <select name="user_id" id="user_id">
+                {% for uid in user_ids %}
+                    <option value="{{ uid }}">{{ uid }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Get Recommendations</button>
+        </form>
+    </body>
+    
+</html>
