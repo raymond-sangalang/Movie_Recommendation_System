@@ -97,10 +97,15 @@ def get_similar_movies(movie_title, model_data, top_number=5):
     similarities = cosine_similarity([embeddings[movie_index]], embeddings)[0]
     top_indices = np.argsort(similarities)[::-1][1:top_number + 1]
 
-    return [
-        {"title":movie_list[index], "poster":fetch_poster(movie_list[index])} 
-         for index in top_indices 
-    ]
+
+    similar_movies = []
+    for index in top_indices:
+        title = movie_names[list(movie_names.keys())[index]]
+        poster_url = fetch_poster(title)
+        similar_movies.append({"title": title, "poster": poster_url})
+    return similar_movies
+
+
 
 
 
