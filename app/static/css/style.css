@@ -1,4 +1,21 @@
-
+body {
+  display: flex;
+  flex-direction: row;
+  background: linear-gradient(to left bottom, lightgreen, lightblue);
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Courier New', Courier, monospace;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255, .3);
+  border-radius: 5px;
+  box-shadow: 0 10px 10px rgba(0,0,0,.3);
+  padding: 20px;
+  margin: 5px;
+}
 .input {
   background: rgba(255,255,255, .4);
   border-color: rgba(255,255,255, .5);
@@ -24,4 +41,14 @@
 .info-text{
     font-size: 20px;
     font-weight: 500;
+}
+
+.stars {          /* Star rating display */
+  font-size: 20px;
+  color: gold;
+  margin-top: 5px;
+}
+.star-container {
+  text-align: center;
+  margin-top: 8px;
 }

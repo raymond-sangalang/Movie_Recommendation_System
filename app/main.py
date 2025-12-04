@@ -1,4 +1,3 @@
-#
 """ main.py - Entry point for flask and executes the web application. """
 from flask import Flask
 from routes import application_routes

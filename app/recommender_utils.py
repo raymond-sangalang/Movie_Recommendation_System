@@ -102,7 +102,14 @@ def get_similar_movies(movie_title, model_data, top_number=5):
     for index in top_indices:
         title = movie_names[list(movie_names.keys())[index]]
         poster_url = fetch_poster(title)
-        similar_movies.append({"title": title, "poster": poster_url})
+        # similar_movies.append({"title": title, "poster": poster_url})
+        rating_score = float(similarities[index] * 5)  # scale 0–5
+        similar_movies.append({
+            "title": title,
+            "poster": poster_url,
+            "rating": round(rating_score, 2)
+        })
+
     return similar_movies
 
 
@@ -142,7 +149,14 @@ def get_user_recommendations(user_id, model_data, top_number=5):
         movie_id = reverse_index_to_movie[movie_tensor[i].item()]
         title = movie_names.get(movie_id, "Unknown")
         poster_url = fetch_poster(title)
-        recommendations.append({"title": title, "poster": poster_url})
+        # recommendations.append({"title": title, "poster": poster_url})
+        pred_rating = float(predictions[i])
+        recommendations.append({
+            "title": title,
+            "poster": poster_url,
+            "rating": round(pred_rating, 2)
+        })
+
 
     return recommendations
 
