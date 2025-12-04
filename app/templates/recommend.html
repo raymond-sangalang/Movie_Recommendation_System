@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+
 {% block content %}
 
 <div class="container" style="max-width:900px;">
@@ -10,32 +11,41 @@
 
     <div class="movie-grid">
         {% for r in recommendations %}
-        <div class="movie-card">
+            
+            <div class="movie-card">
 
-            <img src="{{ r.poster }}" alt="{{ r.title }}">
-            <h4>{{ r.title }}</h4>
+                <img src="{{ r.poster }}" alt="{{ r.title }}">
+                <h4>{{ r.title }}</h4>
 
-            <!-- ⭐ STAR RATING -->
-            <div class="star-container">
-                {% set full = r.rating|int %}
-                {% set half = 1 if r.rating - full >= 0.5 else 0 %}
-                {% set empty = 5 - full - half %}
+                <!-- STAR RATING -->
+                {% if r.rating is defined %}
+                <div class="star-container">
+                    {% set full = r.rating|int %}
+                    {% set half = 1 if r.rating - full >= 0.5 else 0 %}
+                    {% set empty = 5 - full - half %}
 
-                <div class="stars">
-                    {% for _ in range(full) %}★{% endfor %}
-                    {% if half %}☆{% endif %}
-                    {% for _ in range(empty) %}✩{% endfor %}
+                    <div class="stars">
+                        {% for _ in range(full) %}★{% endfor %}
+                        {% if half %}☆{% endif %}
+                        {% for _ in range(empty) %}✩{% endfor %}
+                    </div>
+
+                    <div style="font-size:14px; color:#666;">
+                        {{ r.rating }}/5.0
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Movie details link -->
+                <div style="margin-top:10px;">
+                    <a class="info-text" href="{{ url_for('application_routes.movie_details', movie_id=r.movie_id) }}">
+                        View details & reviews
+                    </a>
                 </div>
 
-                <div style="font-size:14px; color:#666;">
-                    {{ r.rating }}/5.0
-                </div>
             </div>
-
-        </div>
         {% endfor %}
     </div>
-
     <a href="/" class="info-text">⬅ Back</a>
 
 </div>

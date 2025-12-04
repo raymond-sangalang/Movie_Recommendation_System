@@ -5,10 +5,12 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
+
         <h3>User Profile</h3>
         <p><b>User ID:</b> {{ user_id }}</p>
         <p><b>Movies Recommended:</b> {{ recommendations|length }}</p>
-        <p><b>Theme:</b> 
+        <p>
+            <b>Theme:</b> 
             {% if 'dark' in localStorage %}
                 Dark
             {% else %}
@@ -17,19 +19,21 @@
         </p>
     </div>
 
+
     <!-- Recommendations -->
     <div class="container">
-
         <h2 class="info-text">Recommendations for User {{ user_id }}</h2>
 
         <div class="movie-grid">
+
             {% for r in recommendations %}
             <div class="movie-card">
 
                 <img src="{{ r.poster }}" alt="{{ r.title }}">
                 <h4>{{ r.title }}</h4>
 
-                <!-- ⭐ STAR RATING -->
+                <!-- STAR RATING -->
+                 {% if r.rating is defined %}
                 <div class="star-container">
                     {% set full = r.rating|int %}
                     {% set half = 1 if r.rating - full >= 0.5 else 0 %}
@@ -45,11 +49,20 @@
                         {{ r.rating }}/5.0
                     </div>
                 </div>
+                {% endif %}
 
+
+                <!-- Link to movie details -->
+                <div style="margin-top:10px;">
+                    <a class="info-text" href="{{ url_for('application_routes.movie_details', movie_id=r.movie_id) }}">
+                        View details & reviews
+                    </a>
+                </div>
+                
             </div>
             {% endfor %}
-        </div>
 
+        </div>
         <a href="/user" class="info-text">⬅ Choose another user</a>
 
     </div>

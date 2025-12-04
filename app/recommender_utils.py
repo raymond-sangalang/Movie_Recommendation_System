@@ -71,9 +71,7 @@ def fetch_poster(title):
             poster_path = data["results"][0].get("poster_path")
             if poster_path:
                 return f"https://image.tmdb.org/t/p/w200{poster_path}"
-
-
-            return f"https://image.tmdb.org/t/p/w200{data["results"][0]["poster_path"]}"     
+                return f"https://image.tmdb.org/t/p/w200{data['results'][0]['poster_path']}"     
     except Exception:
         pass
     return "/static/images/movies.png"  # default movie image
@@ -100,16 +98,18 @@ def get_similar_movies(movie_title, model_data, top_number=5):
 
     similar_movies = []
     for index in top_indices:
-        title = movie_names[list(movie_names.keys())[index]]
+        
+        movie_id_r = list(movie_names.keys())[index]
+        #
+        title = movie_names[movie_id_r]
         poster_url = fetch_poster(title)
-        # similar_movies.append({"title": title, "poster": poster_url})
+
         rating_score = float(similarities[index] * 5)  # scale 0–5
         similar_movies.append({
             "title": title,
             "poster": poster_url,
-            "rating": round(rating_score, 2)
+            "movie_id": movie_id_r  
         })
-
     return similar_movies
 
 
@@ -149,14 +149,10 @@ def get_user_recommendations(user_id, model_data, top_number=5):
         movie_id = reverse_index_to_movie[movie_tensor[i].item()]
         title = movie_names.get(movie_id, "Unknown")
         poster_url = fetch_poster(title)
-        # recommendations.append({"title": title, "poster": poster_url})
-        pred_rating = float(predictions[i])
         recommendations.append({
             "title": title,
             "poster": poster_url,
-            "rating": round(pred_rating, 2)
+            "movie_id": movie_id  
         })
-
-
     return recommendations
 

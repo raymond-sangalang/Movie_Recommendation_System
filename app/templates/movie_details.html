@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+<!-- Reviews linked to single movie -->
+
+{% block content %}
+<div class="container" style="max-width: 900px;">
+
+   
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+        
+        {% if poster_url %}
+            <div style="flex: 0 0 200px;">
+                <img src="{{ poster_url }}" alt="{{ movie_title }}" style="width: 100%; border-radius: 10px;">
+            </div>
+        {% endif %}
+
+        <div style="flex: 1;">
+            <h2 class="info-text">{{ movie_title }}</h2>
+
+            {% if overview %}
+                <p style="margin-top: 10px;">{{ overview }}</p>
+            {% endif %}
+
+            {% if genres %}
+                <p style="margin-top: 5px; font-size: 14px;">
+                    <strong>Genres:</strong> {{ genres }}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <hr style="margin: 25px 0;">
+
+
+
+    <div id="review-root" data-movie-id="{{ movie_id }}" data-user-id="{{ user_id or 1 }}">
+        <h3 class="info-text">User Reviews</h3>
+
+        <!-- Average rating used by javascript -->
+        <div id="avg-rating" style="margin-bottom:10px;"></div>
+
+
+        <!-- Review form -->
+        <form id="review-form" style="margin-bottom:15px; text-align:left;">
+            <label class="info-text" for="review-rating">Your rating:</label><br>
+            
+            <select id="review-rating" class="input" style="max-width:200px;">
+                <option value="5">5 ★</option>
+                <option value="4">4 ★</option>
+                <option value="3">3 ★</option>
+                <option value="2">2 ★</option>
+                <option value="1">1 ★</option>
+            </select>
+            <br><br>
+            <label class="info-text" for="review-text">Your review:</label><br>
+            <textarea id="review-text" rows="3" class="input" style="width:100%;"></textarea>
+            <button type="submit" class="btn">Submit Review</button>
+
+        </form>
+
+
+        <!-- Sorting the button controls -->
+        <div style="margin-bottom:15px;">
+            <button type="button" id="sort-rating" class="btn">Sort by Rating</button>
+            <button type="button" id="sort-newest" class="btn">Sort by Newest</button>
+
+        </div>
+
+        <div id="reviews-list"></div>
+    </div>
+
+    <div style="margin-top:20px;">
+        <a href="/" class="info-text">⬅ Back to Home</a>
+    </div>
+
+</div>
+<script src="{{ url_for('static', filename='js/reviews.js') }}"></script>
+
+{% endblock %}

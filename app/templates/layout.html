@@ -55,7 +55,7 @@
             color: #fff;
         }
 
-        /* Page spacing (navbar offset) */
+        /* Page spacing or offset via navigation bar */
         .page-content {
             margin-top: 90px;
         }
@@ -100,12 +100,13 @@
             <a href="/user">User Recommendations</a>
         </div>
 
-        <button id="darkToggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+        <button id="darkToggle" onclick="toggleDarkMode()">🌙 Toggle Dark/Light Mode</button>
     </nav>
 
     <div class="page-content">
         {% block content %}{% endblock %}
     </div>
 
+    <script src="{{ url_for('static', filename='js/reviews.js') }}"></script>
 </body>
 </html>
