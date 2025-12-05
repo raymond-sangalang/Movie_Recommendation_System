@@ -27,7 +27,8 @@ def init_db():
             movieId     INTEGER NOT NULL,
             rating      REAL NOT NULL,
             review      TEXT,
-            timestamp   TEXT NOT NULL
+            timestamp   TEXT NOT NULL,
+            UNIQUE(userId, movieId)
         ) 
         """
     )
@@ -94,5 +95,24 @@ def get_average_rating(movie_id):
     row = cur.fetchone()
     
     conn.close()
-    return float(row["avg_rating"]) if row and row["avg_rating"] is not None  else None
+    return float(row["avg_rating"]) if (row and row["avg_rating"] is not None)  else None
  
+
+def user_has_reviewed(user_id, movie_id):
+    """ user_has_reviewed: Return True if this user already has a review for this movie. """
+    
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT 1 FROM reviews 
+        WHERE userId = ? AND movieId = ? 
+        LIMIT 1
+        """,
+        (user_id, movie_id),
+    )
+    row = cur.fetchone()
+
+    conn.close()
+    return row is not None

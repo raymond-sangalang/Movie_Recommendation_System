@@ -1,7 +1,7 @@
 """ routes.py - Initializes user routes as well as rendering templates. """
 from flask import Blueprint, render_template, request, jsonify
 from recommender_utils import load_model_and_data, get_similar_movies, get_user_recommendations, fetch_poster
-from reviews_db import add_review, get_movie_reviews, get_average_rating
+from reviews_db import add_review, get_movie_reviews, get_average_rating, user_has_reviewed
 
 
 # Instantiate Blueprint object for appliction 
@@ -72,20 +72,22 @@ def reviews_api(movie_id):
         if not user_id or rating is None:
             return jsonify({"error": "user_id and rating are required"}), 400
 
-        # Datatype validation
+        elif user_has_reviewed(int(user_id), movie_id):
+            return jsonify({"error": "You have already submitted a review for this movie"}), 400
+
+
         try:
+            # Datatype validation and check range in rating
             rating = float(rating)
+           
+            if rating < 1 or rating > 5:
+                return jsonify({"error": "rating must be between 1 and 5"}), 400
 
         except ValueError:
             return jsonify({"error": "rating must be a number"}), 400
 
-        # Check the correct range is given in the ratings data
-        if rating < 1 or rating > 5:
-            return jsonify({"error": "rating must be between 1 and 5"}), 400
-
-        # Store in DB 
+        # Store in the DataBase and return successful  
         add_review(user_id= int(user_id), movie_id= movie_id, rating= rating, review_text= review_text)
-
         return jsonify({"status": "ok"}), 201
 
     else:
@@ -99,22 +101,28 @@ def reviews_api(movie_id):
         })
 
 
+
 @application_routes.route("/movie/<int:movie_id>")
 def movie_details(movie_id):
-    movie_names = model_data["movie_names"]  # {movieId: title}
-    title = movie_names.get(movie_id, "Unknown movie")
-    poster = fetch_poster(title)
 
+    movie_names = model_data["movie_names"]  # {movieId: title}
+    train_set = model_data["train_set"]      # RatingsLoader ***
+    
+    # obtain the movie given by its ID
+    title = movie_names.get(movie_id, "Unknown movie")
     overview = None   # TMDb usage
     genres = None
-    user_id = 1       # use for authentication
+
+    user_ids = sorted(train_set.user_to_index.keys())
+    default_user_id = user_ids[0] if user_ids  else 1       # use for authentication
 
     return render_template(
         "movie_details.html",
-        movie_id=movie_id,
-        movie_title=title,
-        poster_url=poster,
-        overview=overview,
-        genres=genres,
-        user_id=user_id,
+        movie_id= movie_id,
+        movie_title= title,
+        poster_url= fetch_poster(title),
+        overview= overview,
+        genres= genres,
+        user_id= default_user_id,
+        user_ids= user_ids,
     )

@@ -52,3 +52,69 @@ body {
   text-align: center;
   margin-top: 8px;
 }
+
+
+
+
+
+/* Navbar styling */
+nav {
+    width: 100%;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(6px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+nav a {
+    margin-right: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+}
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Dark mode */
+body.dark {
+    background: #111 !important;
+    color: #f4f4f4;
+}
+body.dark nav {
+    background: rgba(0, 0, 0, 0.7);
+}
+body.dark nav a {
+    color: #f9f9f9;
+}
+body.dark .container, 
+body.dark .movie-card {
+    background: rgba(255,255,255,0.08) !important;
+    color: white !important;
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+body.dark .btn {
+    background: #444 !important;
+    color: #fff;
+}
+
+/* Page spacing or offset via navigation bar */
+.page-content {
+    margin-top: 90px;
+}
+
+/* Dark mode toggle button */
+#darkToggle {
+    padding: 8px 15px;
+    border-radius: 6px;
+    background: lightgreen;
+    cursor: pointer;
+    font-size: 14px;
+    border: none;
+}

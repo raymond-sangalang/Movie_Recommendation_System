@@ -32,16 +32,27 @@
 
 
     <div id="review-root" data-movie-id="{{ movie_id }}" data-user-id="{{ user_id or 1 }}">
+       
         <h3 class="info-text">User Reviews</h3>
-
-        <!-- Average rating used by javascript -->
         <div id="avg-rating" style="margin-bottom:10px;"></div>
-
 
         <!-- Review form -->
         <form id="review-form" style="margin-bottom:15px; text-align:left;">
+
+            <!--  Select user that is reviewing the movie-->
+            <label class="info-text" for="review-user-id">Reviewing as:</label><br>
+            <select id="review-user-id" class="input" style="max-width:200px;">
+                {% for uid in user_ids %}
+                    <option value="{{ uid }}"
+                            {% if uid == user_id %}selected{% endif %}>
+                        User {{ uid }}
+                    </option>
+                {% endfor %}
+            </select>
+            <br><br>
+
+            <!-- Select the Rating for the movie -->
             <label class="info-text" for="review-rating">Your rating:</label><br>
-            
             <select id="review-rating" class="input" style="max-width:200px;">
                 <option value="5">5 ★</option>
                 <option value="4">4 ★</option>
@@ -50,10 +61,12 @@
                 <option value="1">1 ★</option>
             </select>
             <br><br>
+
+            <!-- User to input a description of why they gave the movie their rating -->
             <label class="info-text" for="review-text">Your review:</label><br>
             <textarea id="review-text" rows="3" class="input" style="width:100%;"></textarea>
-            <button type="submit" class="btn">Submit Review</button>
 
+            <button type="submit" class="btn">Submit Review</button>
         </form>
 
 

@@ -4,10 +4,11 @@
 // Front-end logic for loading and submitting movie reviews
 
 (function () {
+    
     let movieId = null;
     let userId = null;
-    let reviews = [];          // local cache for sorting
-    let currentSort = "newest"; // "newest" or "rating"
+    let reviews = [];         
+    let currentSort = "newest";         //  or "rating"
 
     document.addEventListener("DOMContentLoaded", () => {
         const root = document.getElementById("review-root");
@@ -48,8 +49,10 @@
         }
     });
 
+
     async function loadReviews() {
-        try {
+        try 
+        {
             const res = await fetch(`/api/reviews/${movieId}`);
             if (!res.ok) {
                 console.error("Failed to load reviews:", res.status);
@@ -61,10 +64,12 @@
 
             renderAverageRating(data.average_rating);
             renderReviews();
-        } catch (err) {
+        } 
+        catch (err) {
             console.error("Error fetching reviews:", err);
         }
     }
+
 
     function renderAverageRating(avg) {
         const avgContainer = document.getElementById("avg-rating");
@@ -84,6 +89,7 @@
             </div>
         `;
     }
+
 
     function renderReviews() {
         const list = document.getElementById("reviews-list");
@@ -132,6 +138,7 @@
         list.innerHTML = itemsHtml;
     }
 
+
     function buildStars(rating) {
         const value = Number(rating) || 0;
         const full = Math.floor(value);
@@ -145,33 +152,35 @@
         return out;
     }
 
+
     async function handleSubmitReview(event) {
         event.preventDefault();
 
-        const ratingEl = document.getElementById("review-rating");
-        const textEl = document.getElementById("review-text");
+        const ratingElement = document.getElementById("review-rating");
+        const textElement = document.getElementById("review-text");
+        const userSelect = document.getElementById("review-user-id");
 
-        if (!ratingEl || !textEl) return;
+        if (!ratingElement || !textElement) return;
 
-        const rating = ratingEl.value;
-        const review = textEl.value.trim();
+        const rating = ratingElement.value;
+        const review = textElement.value.trim();
 
         if (!rating) {
             alert("Please select a rating.");
             return;
         }
 
-        // Condition: if no userId from server, default or prompt later
-        const uid = userId || 0;
-
+        // Condition:
+        const uid = userSelect ? userSelect.value : (userId || 0);       // will need to add condition
+                                                                         // to check if user already reviewed
         try {
             const res = await fetch(`/api/reviews/${movieId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    user_id: uid,
-                    rating,
-                    review,
+                    user_id:    uid, 
+                                rating, 
+                                review,
                 }),
             });
 
@@ -181,13 +190,12 @@
                 return;
             }
 
-            // Clear form
-            ratingEl.value = "5";
-            textEl.value = "";
-
-            // Reload reviews
-            await loadReviews();
-        } catch (err) {
+            // Clear the form and reload reviews
+            ratingElement.value = "5";
+            textElement.value = "";
+            await loadReviews();  
+        } 
+        catch (err) {
             console.error("Error submitting review:", err);
             alert("Error submitting review.");
         }
