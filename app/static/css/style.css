@@ -43,7 +43,8 @@ body {
     font-weight: 500;
 }
 
-.stars {          /* Star rating display */
+
+.stars {                           /* Star rating display */
   font-size: 20px;
   color: gold;
   margin-top: 5px;
@@ -54,11 +55,7 @@ body {
 }
 
 
-
-
-
-/* Navbar styling */
-nav {
+nav {                               /* Navbar styling */
     width: 100%;
     padding: 15px 20px;
     display: flex;
@@ -82,8 +79,8 @@ nav a:hover {
     text-decoration: underline;
 }
 
-/* Dark mode */
-body.dark {
+
+body.dark {                     /* Dark mode */
     background: #111 !important;
     color: #f4f4f4;
 }
@@ -104,13 +101,11 @@ body.dark .btn {
     color: #fff;
 }
 
-/* Page spacing or offset via navigation bar */
-.page-content {
+.page-content {                 /* Page spacing or offset via navigation bar */
     margin-top: 90px;
 }
 
-/* Dark mode toggle button */
-#darkToggle {
+#darkToggle {                   /* Dark mode toggle button */
     padding: 8px 15px;
     border-radius: 6px;
     background: lightgreen;

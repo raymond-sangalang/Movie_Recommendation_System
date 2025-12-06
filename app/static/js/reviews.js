@@ -1,32 +1,31 @@
-// reviews.js will handle front-end logistics when loading movie reviews
+// reviews.js - handles front-end logistics when loading movie reviews
 //            as well as submitting movie reviews
-// reviews.js
-// Front-end logic for loading and submitting movie reviews
 
 (function () {
     
     let movieId = null;
     let userId = null;
     let reviews = [];         
-    let currentSort = "newest";         //  or "rating"
+
+    //  filters type of sort: latest or rating 
+    let currentSort = "newest";         
 
     document.addEventListener("DOMContentLoaded", () => {
+
         const root = document.getElementById("review-root");
         
-        // No review section on the page
-        if (!root) {
-            return;
-        }
-
+        if (!root)  return;        // No review section on the page
+            
+        // Set variables given by the users review form
         movieId = root.dataset.movieId;
         userId = root.dataset.userId || null;
 
      
         const form = document.getElementById("review-form");
-        if (form) {
+        if (form) 
             form.addEventListener("submit", handleSubmitReview);
-        }
-
+        
+        // Filtering the Sort button
         const sortRatingBtn = document.getElementById("sort-rating");
         const sortNewestBtn = document.getElementById("sort-newest");
 
@@ -36,6 +35,7 @@
                 renderReviews();
             });
         }
+
         if (sortNewestBtn) {
             sortNewestBtn.addEventListener("click", () => {
                 currentSort = "newest";
@@ -43,14 +43,13 @@
             });
         }
 
-        // Initial load
-        if (movieId) {
+        if (movieId)                // Initial load
             loadReviews();
-        }
     });
 
 
     async function loadReviews() {
+
         try 
         {
             const res = await fetch(`/api/reviews/${movieId}`);
@@ -72,7 +71,9 @@
 
 
     function renderAverageRating(avg) {
+
         const avgContainer = document.getElementById("avg-rating");
+       
         if (!avgContainer) return;
 
         if (avg == null) {
@@ -140,20 +141,29 @@
 
 
     function buildStars(rating) {
-        const value = Number(rating) || 0;
+        // Using javascripts logistics/operators to calculate rating stats
+       
+        const value = Number(rating) || 0; 
         const full = Math.floor(value);
         const half = value - full >= 0.5 ? 1 : 0;
         const empty = 5 - full - half;
 
         let out = "";
-        for (let i = 0; i < full; i++) out += "★";
-        if (half) out += "☆";
-        for (let i = 0; i < empty; i++) out += "✩";
+        for (let i = 0; i < full; i++) 
+            out += "★";
+
+        if (half) 
+            out += "☆";
+
+        for (let i = 0; i < empty; i++) 
+            out += "✩";
+
         return out;
     }
 
 
     async function handleSubmitReview(event) {
+
         event.preventDefault();
 
         const ratingElement = document.getElementById("review-rating");
@@ -170,9 +180,10 @@
             return;
         }
 
-        // Condition:
-        const uid = userSelect ? userSelect.value : (userId || 0);       // will need to add condition
-                                                                         // to check if user already reviewed
+        // Condition: to check if user already reviewed
+        const uid = userSelect ? userSelect.value : (userId || 0);      
+               
+
         try {
             const res = await fetch(`/api/reviews/${movieId}`, {
                 method: "POST",
@@ -203,6 +214,7 @@
 
 
     function escapeHtml(str) {
+
         return String(str)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
